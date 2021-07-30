@@ -5,11 +5,15 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.test.domain.Event;
 import com.test.domain.EventRecord;
 import com.test.domain.State;
+import org.apache.commons.io.FileUtils;
+import org.hsqldb.lib.FileUtil;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 
@@ -17,18 +21,20 @@ public class JsonParser {
 
     private static Map<String, EventRecord> eventRecords = new HashMap<>();
 
-    public static Map<String, EventRecord> parseFile(File file) throws IOException {
-        FileInputStream inputStream;
-        inputStream = new FileInputStream(file);
-
-        try (Scanner sc = new Scanner(inputStream, "UTF-8");){
-            while (sc.hasNextLine()) {
-                String line = sc.nextLine();
-                if(line.trim().isEmpty()){
-                    continue;
+    public static Map<String, EventRecord> parseFile(File file) {
+        try {
+            List<String> lines = FileUtils.readLines(file, StandardCharsets.UTF_8);
+            lines.forEach(line -> {
+                try {
+                    parseProcessAndStoreJson(line);
+                } catch (JsonProcessingException e) {
+                    System.out.println("Exception: "+e.getMessage());
+                    System.exit(-1);
                 }
-                parseProcessAndStoreJson(line);
-            }
+            });
+        }
+        catch (IOException e) {
+            e.printStackTrace();
         }
         return eventRecords;
     }

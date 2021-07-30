@@ -24,10 +24,8 @@ public class LogToHsqlDbApp {
         var data = JsonParser.parseFile(file);
         DatabaseManager.initializeDb();
         data.entrySet().stream()
-                .forEach(e -> {
-                   DatabaseManager.insertData(e.getValue());
-                });
-
+                .forEach(eventRecordEntry ->
+                        DatabaseManager.insertData(eventRecordEntry.getValue()));
         DatabaseManager.closeDb();
         System.out.println("Log processing is done successfully. Please check the directory log-data.");
     }
